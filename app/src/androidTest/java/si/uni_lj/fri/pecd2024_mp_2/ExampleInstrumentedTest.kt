@@ -1,4 +1,4 @@
-package si.example.pecd2024_mp_2
+package si.uni_lj.fri.pecd2024_mp_2
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("si.example.pecd2024_mp_2", appContext.packageName)
+        assertEquals("si.uni_lj.fri.pecd2024_mp_2", appContext.packageName)
     }
 }

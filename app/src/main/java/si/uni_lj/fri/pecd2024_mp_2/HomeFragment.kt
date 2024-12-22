@@ -1,4 +1,4 @@
-package si.example.pecd2024_mp_2
+package si.uni_lj.fri.pecd2024_mp_2
 
 import android.content.ComponentName
 import android.content.Intent
@@ -13,7 +13,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import si.example.pecd2024_mp_2.databinding.FragmentHomeBinding
+import si.uni_lj.fri.pecd2024_mp_2.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment(), RecordingCallback {
 

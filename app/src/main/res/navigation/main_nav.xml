@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="si.example.pecd2024_mp_2.HomeFragment"
+        android:name="si.uni_lj.fri.pecd2024_mp_2.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="si.example.pecd2024_mp_2.SettingsFragment"
+        android:name="si.uni_lj.fri.pecd2024_mp_2.SettingsFragment"
         android:label="Settings" >
         <action
             android:id="@+id/action_settingsFragment_to_homeFragment"

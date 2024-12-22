@@ -1,4 +1,4 @@
-package si.example.pecd2024_mp_2
+package si.uni_lj.fri.pecd2024_mp_2
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -14,7 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupActionBarWithNavController
-import si.example.pecd2024_mp_2.databinding.ActivityMainBinding
+import si.uni_lj.fri.pecd2024_mp_2.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity()/*, RecordingCallback*/ {
 

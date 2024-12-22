@@ -1,4 +1,4 @@
-package si.example.pecd2024_mp_2
+package si.uni_lj.fri.pecd2024_mp_2
 
 import android.Manifest
 import android.annotation.SuppressLint
