@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "si.uni_lj.fri.pecd2024_mp_2"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
