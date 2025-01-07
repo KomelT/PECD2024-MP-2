@@ -1,4 +1,4 @@
-package si.uni_lj.fri.pecd2024_mp_2
+package com.example.speechrecognitionapp
 
 import android.content.ComponentName
 import android.content.Intent
@@ -7,13 +7,13 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import si.uni_lj.fri.pecd2024_mp_2.databinding.FragmentHomeBinding
+import com.example.speechrecognitionapp.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment(), RecordingCallback {
 
@@ -40,7 +40,7 @@ class HomeFragment : Fragment(), RecordingCallback {
         val view = binding.root
 
         val listView = binding.listView
-        adapter = activity?.applicationContext?.let { ResultAdapter(results, it) }!!
+        adapter = ResultAdapter(results, activity?.applicationContext)
         listView.adapter = adapter
 
         return view

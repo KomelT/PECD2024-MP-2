@@ -1,4 +1,4 @@
-package si.uni_lj.fri.pecd2024_mp_2
+package com.example.speechrecognitionapp
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -14,7 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupActionBarWithNavController
-import si.uni_lj.fri.pecd2024_mp_2.databinding.ActivityMainBinding
+import com.example.speechrecognitionapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity()/*, RecordingCallback*/ {
 

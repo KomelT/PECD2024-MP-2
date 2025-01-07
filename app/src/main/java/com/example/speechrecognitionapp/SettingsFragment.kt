@@ -1,4 +1,4 @@
-package si.uni_lj.fri.pecd2024_mp_2
+package com.example.speechrecognitionapp
 
 import android.os.Bundle
 import androidx.preference.EditTextPreference

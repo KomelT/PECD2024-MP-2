@@ -1,7 +1,6 @@
-package si.uni_lj.fri.pecd2024_mp_2
+package com.example.speechrecognitionapp
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.*
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -65,8 +64,6 @@ class AudioRecordingService : Service() {
     private var notification: Notification? = null
 
     private var callback: RecordingCallback? = null
-
-    private var loudness = 0.0
 
     private var isBackground = true
 
@@ -166,7 +163,7 @@ class AudioRecordingService : Service() {
         // Sort results
         Collections.sort(data, object : Comparator<Result> {
             override fun compare(o1: Result, o2: Result): Int {
-                return o1.confidence?.let { o2.confidence?.compareTo(it) } ?: 0
+                return o2.confidence.compareTo(o1.confidence)
             }
         })
 
@@ -236,14 +233,6 @@ class AudioRecordingService : Service() {
 
             }
 
-            // calculate loudness
-            for (i in 0 until recordingBuffer.size) {
-                loudness += recordingBuffer[i] * recordingBuffer[i]
-            }
-            loudness = Math.sqrt(loudness / recordingBuffer.size)
-
-            if (loudness <= 0.01) return
-
             computeBuffer(recordingBuffer)
 
             System.arraycopy(recordingBuffer, windowSize, tempRecordingBuffer, 0, recordingBuffer.size - windowSize)
@@ -311,7 +300,7 @@ class AudioRecordingService : Service() {
             val labels = TensorLabel(axisLabels, probabilityProcessor.process(outputTensorBuffer)).mapWithFloatValue
             val results = ArrayList<Result>()
             for (label in labels) {
-                results.add(Result(label.key, label.value.toDouble(), loudness.toDouble()))
+                results.add(Result(label.key, label.value.toDouble()))
             }
             Log.d(TAG, "Labels are: $labels")
             val result = labels.maxBy { it.value }.key
@@ -331,7 +320,6 @@ class AudioRecordingService : Service() {
         }
     }
     
-    @SuppressLint("ForegroundServiceType")
     fun foreground() {
         notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
