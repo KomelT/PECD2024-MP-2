@@ -66,6 +66,8 @@ class AudioRecordingService : Service() {
 
     private var callback: RecordingCallback? = null
 
+    private var loudness = 0.0
+
     private var isBackground = true
 
     inner class RunServiceBinder : Binder() {
@@ -234,6 +236,14 @@ class AudioRecordingService : Service() {
 
             }
 
+            // calculate loudness
+            for (i in 0 until recordingBuffer.size) {
+                loudness += recordingBuffer[i] * recordingBuffer[i]
+            }
+            loudness = Math.sqrt(loudness / recordingBuffer.size)
+
+            if (loudness <= 0.01) return
+
             computeBuffer(recordingBuffer)
 
             System.arraycopy(recordingBuffer, windowSize, tempRecordingBuffer, 0, recordingBuffer.size - windowSize)
@@ -301,7 +311,7 @@ class AudioRecordingService : Service() {
             val labels = TensorLabel(axisLabels, probabilityProcessor.process(outputTensorBuffer)).mapWithFloatValue
             val results = ArrayList<Result>()
             for (label in labels) {
-                results.add(Result(label.key, label.value.toDouble()))
+                results.add(Result(label.key, label.value.toDouble(), loudness.toDouble()))
             }
             Log.d(TAG, "Labels are: $labels")
             val result = labels.maxBy { it.value }.key

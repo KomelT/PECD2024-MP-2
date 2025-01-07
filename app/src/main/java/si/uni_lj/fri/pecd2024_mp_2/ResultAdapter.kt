@@ -13,6 +13,7 @@ class ResultAdapter(private val dataSet: ArrayList<Result>, var mContext: Contex
     private class ViewHolder {
         var txtLabel: TextView? = null
         var txtValue: TextView? = null
+        var txtLoudness: TextView? = null
         var progressBar: ProgressBar? = null
     }
 
@@ -30,12 +31,14 @@ class ResultAdapter(private val dataSet: ArrayList<Result>, var mContext: Contex
             convertView = View.inflate(context, R.layout.row_item, null)
             viewHolder.txtLabel = convertView.findViewById<View>(R.id.txtLabel) as TextView
             viewHolder.txtValue = convertView.findViewById<View>(R.id.txtValue) as TextView
+            viewHolder.txtLoudness = convertView.findViewById<View>(R.id.txtLoudness) as TextView
             viewHolder.progressBar = convertView.findViewById<View>(R.id.progressBar) as ProgressBar
             convertView.setTag(viewHolder)
         } else {
             viewHolder = convertView.tag as ViewHolder
         }
         viewHolder.txtLabel!!.text = result!!.label
+        viewHolder.txtLoudness!!.text = result!!.loudness.toString()
         val confidence1 = result.confidence?.times(100)
         viewHolder.txtValue!!.text = String.format("%.2f", confidence1)
         viewHolder.progressBar!!.progress = (result.confidence?.times(100))?.toInt() ?: 0
