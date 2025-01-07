@@ -13,5 +13,5 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-rootProject.name = "SpeechRecognitionApp"
+rootProject.name = "PECD2024-MP-2"
 include ':app'
