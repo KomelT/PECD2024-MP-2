@@ -19,5 +19,7 @@
     <string name="top_k_title">Top k</string>
     <string name="top_k_summary">Number of top predictions to display</string>
     <string name="top_k_dialog">Select number of top predictions to display</string>
+    <string name="detected_speech">Speeking detected</string>
+    <string name="listening">Listening</string>
 
 </resources>
