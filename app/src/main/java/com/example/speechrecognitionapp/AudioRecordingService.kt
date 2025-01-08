@@ -12,13 +12,13 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import java.util.*
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.common.TensorProcessor
 import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import kotlin.collections.ArrayList
+import java.util.*
+import kotlin.math.abs
 
 
 class AudioRecordingService : Service() {
@@ -75,7 +75,7 @@ class AudioRecordingService : Service() {
     var serviceBinder = RunServiceBinder()
 
     override fun onCreate() {
-        Log.d(TAG, "Creating service")
+        //Log.d(TAG, "Creating service")
         super.onCreate()
 
         createNotificationChannel()
@@ -89,13 +89,13 @@ class AudioRecordingService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder {
-        Log.d(TAG, "Binding service")
+        //Log.d(TAG, "Binding service")
 
         return serviceBinder
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "Starting service")
+        //Log.d(TAG, "Starting service")
 
         if (intent != null) {
             val bundle = intent.extras
@@ -105,9 +105,9 @@ class AudioRecordingService : Service() {
                 windowSize = bundle.getInt("windowSize")
                 topK = bundle.getInt("topK")
             }
-            Log.d(TAG, "Energy threshold: $energyThreshold")
-            Log.d(TAG, "Probability threshold: $probabilityThreshold")
-            Log.d(TAG, "Window size: $windowSize")
+            //Log.d(TAG, "Energy threshold: $energyThreshold")
+            //Log.d(TAG, "Probability threshold: $probabilityThreshold")
+            //Log.d(TAG, "Window size: $windowSize")
         }
 
         startRecording()
@@ -197,12 +197,12 @@ class AudioRecordingService : Service() {
         }
 
         if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
-            Log.e(TAG, "Audio Record can't initialize!")
+            //Log.e(TAG, "Audio Record can't initialize!")
             return
         }
 
         audioRecord?.startRecording()
-        Log.v(TAG, "Start recording")
+        //Log.v(TAG, "Start recording")
 
         var firstLoop = true
         var totalSamplesRead: Int
@@ -229,9 +229,15 @@ class AudioRecordingService : Service() {
                     }
                     totalSamplesRead += read
                 }
-
-
             }
+
+            var volume = (calculateDbVolume(recordingBuffer) * 1000)
+
+            Log.d(TAG, "Volume: ${volume}")
+
+            if (volume < 3) continue
+
+            Log.d(TAG, "Detecting...")
 
             computeBuffer(recordingBuffer)
 
@@ -242,6 +248,18 @@ class AudioRecordingService : Service() {
 
         }
         stopRecording()
+    }
+
+    private fun calculateDbVolume(audioBuffer: DoubleArray): Double {
+        var avgVolume = 0.0;
+
+        for (s in audioBuffer) {
+            avgVolume += abs(s.toDouble())
+        }
+
+        avgVolume /= audioBuffer.size
+
+        return avgVolume
     }
 
     private fun computeBuffer(audioBuffer: DoubleArray) {
@@ -263,7 +281,7 @@ class AudioRecordingService : Service() {
             }
         }
 
-        Log.d(TAG, "MFCC Shape: ${mfccValues.size}, ${mfccValues[0].size}")
+        //Log.d(TAG, "MFCC Shape: ${mfccValues.size}, ${mfccValues[0].size}")
 
         // Pass matrix to model
         loadAndPredict(mfccInput)
@@ -292,7 +310,7 @@ class AudioRecordingService : Service() {
         try {
             axisLabels = FileUtil.loadLabels(this, "labels.txt")
         } catch (e: Exception) {
-            Log.e(TAG, "Error reading label file", e)
+            //Log.e(TAG, "Error reading label file", e)
         }
 
         val probabilityProcessor: TensorProcessor = TensorProcessor.Builder().build()
@@ -302,12 +320,12 @@ class AudioRecordingService : Service() {
             for (label in labels) {
                 results.add(Result(label.key, label.value.toDouble()))
             }
-            Log.d(TAG, "Labels are: $labels")
+            //Log.d(TAG, "Labels are: $labels")
             val result = labels.maxBy { it.value }.key
             val value = labels.maxBy { it.value }.value
             if (value!! > probabilityThreshold) {
-                Log.d(TAG, "Result: $result")
-                Log.d(TAG, "Result: ${labels.maxBy { it.value }}")
+                //Log.d(TAG, "Result: $result")
+                //Log.d(TAG, "Result: ${labels.maxBy { it.value }}")
 
                 updateData(results)
 
@@ -338,6 +356,6 @@ class AudioRecordingService : Service() {
     override fun onDestroy() {
         stopRecording()
         super.onDestroy()
-        Log.d(TAG, "Destroying service")
+        //Log.d(TAG, "Destroying service")
     }
 }

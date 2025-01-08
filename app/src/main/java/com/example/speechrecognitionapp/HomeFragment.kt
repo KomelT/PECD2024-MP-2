@@ -61,7 +61,7 @@ class HomeFragment : Fragment(), RecordingCallback {
 
     }
     override fun onDataUpdated(data: ArrayList<Result>) {
-        Log.d(TAG, "Updated:" + data.size)
+        //Log.d(TAG, "Updated:" + data.size)
         activity?.runOnUiThread {
             adapter.clear()
             adapter.addAll(data)
