@@ -12,6 +12,11 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.konovalov.vad.silero.Vad
+import com.konovalov.vad.silero.VadSilero
+import com.konovalov.vad.silero.config.FrameSize
+import com.konovalov.vad.silero.config.Mode
+import com.konovalov.vad.silero.config.SampleRate
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.common.TensorProcessor
@@ -58,7 +63,10 @@ class AudioRecordingService : Service() {
 
     var isRecording: Boolean = false
     var recordingBuffer: DoubleArray = DoubleArray(RECORDING_LENGTH)
+    var sRecordingBuffer: ShortArray = ShortArray(RECORDING_LENGTH)
     var interpreter: Interpreter? = null
+
+    private lateinit var vad: VadSilero
 
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notification: Notification? = null
@@ -80,12 +88,22 @@ class AudioRecordingService : Service() {
 
         createNotificationChannel()
 
-        recordingBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, AUDIO_CHANNELS, AUDIO_FORMAT)
+        vad = Vad.builder()
+            .setContext(this)
+            .setSampleRate(SampleRate.SAMPLE_RATE_16K)
+            .setFrameSize(FrameSize.FRAME_SIZE_512)
+            .setMode(Mode.NORMAL)
+            .setSilenceDurationMs(300)
+            .setSpeechDurationMs(50)
+            .build()
+
+        //recordingBufferSize = AudioRecord.getMinBufferSize(vad.sampleRate.value, AUDIO_CHANNELS, AUDIO_FORMAT)
+        recordingBufferSize = 512
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             return
         }
-        audioRecord = AudioRecord(AUDIO_INPUT, SAMPLE_RATE, AUDIO_CHANNELS, AUDIO_FORMAT, recordingBufferSize)
+        audioRecord = AudioRecord(AUDIO_INPUT, vad.sampleRate.value, AUDIO_CHANNELS, AUDIO_FORMAT, recordingBufferSize)
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -217,27 +235,37 @@ class AudioRecordingService : Service() {
                 totalSamplesRead = 0
                 firstLoop = false
             }
+
+            var hadSpeech = false;
+
             while (totalSamplesRead < SAMPLE_RATE) {
                 val remainingSamples = SAMPLE_RATE - totalSamplesRead
                 val samplesToRead = if (remainingSamples > recordingBufferSize) recordingBufferSize else remainingSamples
                 val audioBuffer = ShortArray(samplesToRead)
                 val read = audioRecord?.read(audioBuffer, 0, samplesToRead)
 
+
                 if (read != AudioRecord.ERROR_INVALID_OPERATION && read != AudioRecord.ERROR_BAD_VALUE) {
                     for (i in 0 until read!!){
+                        sRecordingBuffer[totalSamplesRead + i] = audioBuffer[i]
                         recordingBuffer[totalSamplesRead + i] = audioBuffer[i].toDouble() / Short.MAX_VALUE
                     }
                     totalSamplesRead += read
                 }
+
+                var volume = (calculateDbVolume(recordingBuffer) * 1000)
+
+                if (volume < 3) continue
+
+                //Log.d(TAG, "Volume: ${volume}")
+
+                if (audioBuffer.size == vad.frameSize.value) {
+                    hadSpeech = vad.isSpeech(audioBuffer)
+                    if (hadSpeech) Log.d(TAG, "Speech detected")
+                }
             }
 
-            var volume = (calculateDbVolume(recordingBuffer) * 1000)
-
-            Log.d(TAG, "Volume: ${volume}")
-
-            if (volume < 3) continue
-
-            Log.d(TAG, "Detecting...")
+            if (!hadSpeech) continue
 
             computeBuffer(recordingBuffer)
 
