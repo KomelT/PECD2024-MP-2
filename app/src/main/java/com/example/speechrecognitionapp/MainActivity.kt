@@ -14,11 +14,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.example.speechrecognitionapp.HomeFragment.Companion
 import com.example.speechrecognitionapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity()/*, RecordingCallback*/ {
 
     private lateinit var binding: ActivityMainBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,12 +51,22 @@ class MainActivity : AppCompatActivity()/*, RecordingCallback*/ {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val navController = findNavController(R.id.fragmentContainerView)
+
         when (item.itemId){
             R.id.nav_home -> {
-                findNavController(R.id.fragmentContainerView).navigate(R.id.action_settingsFragment_to_homeFragment)
+                if (navController.currentDestination?.id != R.id.homeFragment) {
+                    // navController.navigate(R.id.action_settingsFragment_to_homeFragment)
+                    in_settings_fragment = false
+                    navController.popBackStack()
+                }
             }
             R.id.nav_settings -> {
-                findNavController(R.id.fragmentContainerView).navigate(R.id.action_homeFragment_to_settingsFragment)
+                if (navController.currentDestination?.id != R.id.settingsFragment) {
+                    Log.d(MainActivity.TAG, "going to nav")
+                    in_settings_fragment = true
+                    navController.navigate(R.id.action_homeFragment_to_settingsFragment)
+                }
             }
         }
         return super.onOptionsItemSelected(item)
@@ -72,8 +84,8 @@ class MainActivity : AppCompatActivity()/*, RecordingCallback*/ {
             }
         }
     }
-
     companion object {
         private val TAG = MainActivity::class.simpleName
+         var in_settings_fragment: Boolean = false
     }
 }

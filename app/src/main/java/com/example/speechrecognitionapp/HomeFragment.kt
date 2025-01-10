@@ -97,12 +97,14 @@ class HomeFragment : Fragment(), RecordingCallback {
     override fun onStop() {
         super.onStop()
 
-        if (isServiceBound) {
-            if (audioRecordingService?.isRecording!!) {
-                Log.d(TAG, "Foregrounding service")
-                audioRecordingService?.foreground()
-            }
-        } else {
+        if (isServiceBound && (audioRecordingService?.isRecording == true) && MainActivity.in_settings_fragment==false) {
+            Log.d(TAG, "Foregrounding service")
+            audioRecordingService?.foreground()
+        }
+        else if (isServiceBound && audioRecordingService?.isRecording == true && MainActivity.in_settings_fragment) {
+            audioRecordingService?.isRecording = false
+        }
+        else {
             stopService()
         }
     }
