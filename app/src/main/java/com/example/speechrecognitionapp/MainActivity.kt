@@ -20,6 +20,7 @@ import com.example.speechrecognitionapp.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity()/*, RecordingCallback*/ {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var logger: Logger
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +38,9 @@ class MainActivity : AppCompatActivity()/*, RecordingCallback*/ {
         } catch (e: Exception) {
             Log.d(TAG, "Error: " + e.message)
         }
+        logger = Logger(applicationContext)
+        logger.startPeriodicUpload()
+
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -84,8 +88,13 @@ class MainActivity : AppCompatActivity()/*, RecordingCallback*/ {
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        logger.stopPeriodicUpload()
+    }
     companion object {
         private val TAG = MainActivity::class.simpleName
-         var in_settings_fragment: Boolean = false
+        var in_settings_fragment: Boolean = false
     }
 }

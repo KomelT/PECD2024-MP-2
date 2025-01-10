@@ -24,9 +24,11 @@ import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.util.*
 import kotlin.math.abs
+import com.example.speechrecognitionapp.Logger
 
 
 class AudioRecordingService : Service() {
+    // Crear la instancia del Logger y pasar el contexto de la actividad
 
     companion object {
         private val TAG = AudioRecordingService::class.simpleName
@@ -48,6 +50,7 @@ class AudioRecordingService : Service() {
         // Notifications
         private const val CHANNEL_ID = "word_recognition"
         private const val NOTIFICATION_ID = 202
+
     }
     // Tweak parameters
     private var energyThreshold = 0.1
@@ -74,6 +77,8 @@ class AudioRecordingService : Service() {
     private var callback: RecordingCallback? = null
 
     private var isBackground = true
+    private lateinit var logger: Logger
+
 
     inner class RunServiceBinder : Binder() {
         val service: AudioRecordingService
@@ -114,6 +119,7 @@ class AudioRecordingService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         //Log.d(TAG, "Starting service")
+        logger = Logger(applicationContext)
 
         if (intent != null) {
             val bundle = intent.extras
@@ -345,16 +351,24 @@ class AudioRecordingService : Service() {
         if (axisLabels != null) {
             val labels = TensorLabel(axisLabels, probabilityProcessor.process(outputTensorBuffer)).mapWithFloatValue
             val results = ArrayList<Result>()
+            //for logging
+            val keywords = ArrayList<String>()
+            var cont = 0
             for (label in labels) {
                 results.add(Result(label.key, label.value.toDouble()))
             }
+
             //Log.d(TAG, "Labels are: $labels")
             val result = labels.maxBy { it.value }.key
             val value = labels.maxBy { it.value }.value
             if (value!! > probabilityThreshold) {
                 //Log.d(TAG, "Result: $result")
                 //Log.d(TAG, "Result: ${labels.maxBy { it.value }}")
+                keywords.add(result)
+                cont++
 
+                // Log to file
+                logger.logToFile(cont,keywords)
                 updateData(results)
 
                 notification = createNotification()
@@ -384,6 +398,7 @@ class AudioRecordingService : Service() {
     override fun onDestroy() {
         stopRecording()
         super.onDestroy()
+
         //Log.d(TAG, "Destroying service")
     }
 }
