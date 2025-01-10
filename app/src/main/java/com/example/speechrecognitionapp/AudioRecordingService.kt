@@ -28,8 +28,6 @@ import com.example.speechrecognitionapp.Logger
 
 
 class AudioRecordingService : Service() {
-    // Crear la instancia del Logger y pasar el contexto de la actividad
-
     companion object {
         private val TAG = AudioRecordingService::class.simpleName
 
