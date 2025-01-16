@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -40,6 +41,7 @@ android {
         noCompress("tflite")
         noCompress("lite")
     }
+    buildToolsVersion = "34.0.0"
 }
 
 dependencies {
@@ -51,10 +53,10 @@ dependencies {
     implementation("com.github.gkonovalov:android-vad:2.0.2")
     implementation("org.tensorflow:tensorflow-lite:2.10.0")
     implementation("org.tensorflow:tensorflow-lite-support:0.4.3")
-
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.4")
     implementation("androidx.navigation:navigation-ui-ktx:2.8.4")
+    implementation("com.google.firebase:firebase-database:21.0.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")

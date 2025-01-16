@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "85941637254",
+    "project_id": "pecd2024-mp-2",
+    "storage_bucket": "pecd2024-mp-2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85941637254:android:c118cd7abe917c43e24107",
+        "android_client_info": {
+          "package_name": "com.example.speechrecognitionapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2cEbYc5JyrnHD0NqvY-fLcU98nhjSHxM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
