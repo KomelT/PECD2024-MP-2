@@ -23,8 +23,8 @@ import org.tensorflow.lite.support.common.TensorProcessor
 import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.util.*
-import kotlin.math.abs
-import com.example.speechrecognitionapp.Logger
+import kotlin.math.log10
+import kotlin.math.sqrt
 
 
 class AudioRecordingService : Service() {
@@ -64,7 +64,6 @@ class AudioRecordingService : Service() {
 
     var isRecording: Boolean = false
     var recordingBuffer: DoubleArray = DoubleArray(RECORDING_LENGTH)
-    var sRecordingBuffer: ShortArray = ShortArray(RECORDING_LENGTH)
     var interpreter: Interpreter? = null
 
     private lateinit var vad: VadSilero
@@ -224,7 +223,7 @@ class AudioRecordingService : Service() {
         }
 
         audioRecord?.startRecording()
-        Log.v(TAG, "Start recording")
+        //Log.v(TAG, "Start recording")
 
         var firstLoop = true
         var totalSamplesRead: Int
@@ -250,23 +249,29 @@ class AudioRecordingService : Service() {
 
 
                 if (read != AudioRecord.ERROR_INVALID_OPERATION && read != AudioRecord.ERROR_BAD_VALUE) {
-                    for (i in 0 until read!!){
-                        sRecordingBuffer[totalSamplesRead + i] = audioBuffer[i]
+
+                    if (audioBuffer.size == vad.frameSize.value && !hadSpeech) {
+                        hadSpeech = vad.isSpeech(audioBuffer)
+                        Log.d(TAG, hadSpeech.toString())
+                    }
+
+                    if (!hadSpeech) continue
+
+                    for (i in 0 until read!!) {
                         recordingBuffer[totalSamplesRead + i] = audioBuffer[i].toDouble() / Short.MAX_VALUE
                     }
                     totalSamplesRead += read
                 }
 
-                var volume = (calculateDbVolume(recordingBuffer) * 1000)
-                Log.d(TAG, "Volume: ${volume}")
 
-                if (volume < 15) continue
+                //continu
+
+                //var volume = calculateDbVolume(audioBuffer)
+                //Log.d(TAG, "Volume: ${volume}")
+
+                //if (volume < 50) continue
 
 
-                if (audioBuffer.size == vad.frameSize.value) {
-                    hadSpeech = vad.isSpeech(audioBuffer)
-                    if (hadSpeech) Log.d(TAG, "Speech detected")
-                }
             }
 
             if (!hadSpeech) continue
@@ -282,16 +287,16 @@ class AudioRecordingService : Service() {
         stopRecording()
     }
 
-    private fun calculateDbVolume(audioBuffer: DoubleArray): Double {
-        var avgVolume = 0.0;
-
-        for (s in audioBuffer) {
-            avgVolume += abs(s.toDouble())
+    private fun calculateDbVolume(audioBuffer: ShortArray): Double {
+        var sum = 0.0
+        for (sample in audioBuffer) {
+            sum += (sample * sample).toDouble()
         }
+        val rms = sqrt(sum / audioBuffer.size)
 
-        avgVolume /= audioBuffer.size
+        val db = 20 * log10(rms)
 
-        return avgVolume
+        return db
     }
 
     private fun computeBuffer(audioBuffer: DoubleArray) {
@@ -360,8 +365,8 @@ class AudioRecordingService : Service() {
             val result = labels.maxBy { it.value }.key
             val value = labels.maxBy { it.value }.value
             if (value!! > probabilityThreshold) {
-                Log.d(TAG, "Result: $result")
-                Log.d(TAG, "Result (maxby): ${labels.maxBy { it.value }}")
+                //Log.d(TAG, "Result: $result")
+                //Log.d(TAG, "Result (maxby): ${labels.maxBy { it.value }}")
                 keywords.add(result)
                 cont++
 
@@ -397,6 +402,6 @@ class AudioRecordingService : Service() {
         stopRecording()
         super.onDestroy()
 
-        Log.d(TAG, "Destroying service")
+        //Log.d(TAG, "Destroying service")
     }
 }
