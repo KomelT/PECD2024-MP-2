@@ -224,7 +224,7 @@ class AudioRecordingService : Service() {
         }
 
         audioRecord?.startRecording()
-        //Log.v(TAG, "Start recording")
+        Log.v(TAG, "Start recording")
 
         var firstLoop = true
         var totalSamplesRead: Int
@@ -258,10 +258,10 @@ class AudioRecordingService : Service() {
                 }
 
                 var volume = (calculateDbVolume(recordingBuffer) * 1000)
+                Log.d(TAG, "Volume: ${volume}")
 
-                if (volume < 3) continue
+                if (volume < 15) continue
 
-                //Log.d(TAG, "Volume: ${volume}")
 
                 if (audioBuffer.size == vad.frameSize.value) {
                     hadSpeech = vad.isSpeech(audioBuffer)
@@ -360,8 +360,8 @@ class AudioRecordingService : Service() {
             val result = labels.maxBy { it.value }.key
             val value = labels.maxBy { it.value }.value
             if (value!! > probabilityThreshold) {
-                //Log.d(TAG, "Result: $result")
-                //Log.d(TAG, "Result: ${labels.maxBy { it.value }}")
+                Log.d(TAG, "Result: $result")
+                Log.d(TAG, "Result (maxby): ${labels.maxBy { it.value }}")
                 keywords.add(result)
                 cont++
 
@@ -397,6 +397,6 @@ class AudioRecordingService : Service() {
         stopRecording()
         super.onDestroy()
 
-        //Log.d(TAG, "Destroying service")
+        Log.d(TAG, "Destroying service")
     }
 }
