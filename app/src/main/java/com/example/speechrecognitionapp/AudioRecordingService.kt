@@ -94,9 +94,9 @@ class AudioRecordingService : Service() {
             .setContext(this)
             .setSampleRate(SampleRate.SAMPLE_RATE_16K)
             .setFrameSize(FrameSize.FRAME_SIZE_512)
-            .setMode(Mode.NORMAL)
+            .setMode(Mode.VERY_AGGRESSIVE)
             .setSilenceDurationMs(300)
-            .setSpeechDurationMs(50)
+            .setSpeechDurationMs(100)
             .build()
 
         //recordingBufferSize = AudioRecord.getMinBufferSize(vad.sampleRate.value, AUDIO_CHANNELS, AUDIO_FORMAT)
@@ -247,15 +247,7 @@ class AudioRecordingService : Service() {
                 val audioBuffer = ShortArray(samplesToRead)
                 val read = audioRecord?.read(audioBuffer, 0, samplesToRead)
 
-
                 if (read != AudioRecord.ERROR_INVALID_OPERATION && read != AudioRecord.ERROR_BAD_VALUE) {
-
-                    if (audioBuffer.size == vad.frameSize.value && !hadSpeech) {
-                        hadSpeech = vad.isSpeech(audioBuffer)
-                        Log.d(TAG, hadSpeech.toString())
-                    }
-
-                    if (!hadSpeech) continue
 
                     for (i in 0 until read!!) {
                         recordingBuffer[totalSamplesRead + i] = audioBuffer[i].toDouble() / Short.MAX_VALUE
@@ -263,18 +255,30 @@ class AudioRecordingService : Service() {
                     totalSamplesRead += read
                 }
 
+                if (!hadSpeech) {
 
-                //continu
+                    var volume = calculateDbVolume(audioBuffer)
 
-                //var volume = calculateDbVolume(audioBuffer)
-                //Log.d(TAG, "Volume: ${volume}")
+                    Log.d(TAG, volume.toString())
 
-                //if (volume < 50) continue
+                    if (volume < 45) continue
 
 
+                    if (audioBuffer.size == vad.frameSize.value) {
+                        hadSpeech = vad.isSpeech(audioBuffer)
+
+
+                        Log.d(TAG, hadSpeech.toString())
+                    } else {
+                        hadSpeech = false
+                    }
+
+                }
             }
 
             if (!hadSpeech) continue
+
+            Log.d(TAG, "Detecting word...")
 
             computeBuffer(recordingBuffer)
 

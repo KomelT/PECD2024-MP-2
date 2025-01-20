@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.example.speechrecognitionapp.databinding.FragmentHomeBinding
@@ -112,6 +114,16 @@ class HomeFragment : Fragment(), RecordingCallback {
     private fun startService() {
         val serviceIntent = Intent(activity, AudioRecordingService::class.java)
 
+        val window = activity?.window
+        val layoutParams = window?.attributes
+        if (layoutParams != null) {
+            layoutParams.screenBrightness = 0.1f
+        } // Brightness level (0.0 to 1.0)
+        if (window != null) {
+            window.attributes = layoutParams
+        }
+
+
         try {
             val energyThreshold = sharedPreferences?.getString("energy", "0.1")
             //Log.d(TAG, "energyThreshold: $energyThreshold")
@@ -136,6 +148,15 @@ class HomeFragment : Fragment(), RecordingCallback {
     }
 
     private fun stopService() {
+        val window = activity?.window
+        val layoutParams = window?.attributes
+        if (layoutParams != null) {
+            layoutParams.screenBrightness = 0.5f
+        } // Brightness level (0.0 to 1.0)
+        if (window != null) {
+            window.attributes = layoutParams
+        }
+
         unbindService()
         val serviceIntent = Intent(activity, AudioRecordingService::class.java)
         activity?.stopService(serviceIntent)
